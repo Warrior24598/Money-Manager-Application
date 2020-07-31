@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:elevation="10dp"
+        android:shadowColor="@color/cardview_dark_background"
+        android:text="EXPENSE"
+        android:textAlignment="center"
+        android:textColor="#555"
+        android:textSize="@dimen/tab_title"
+        android:textStyle="bold" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerCategories"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/txtGrandTotal"
+        android:layout_below="@id/txtTitle"
+        android:layout_margin="10dp" />
+
+    <TextView
+        android:id="@+id/txtGrandTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="5dp"
+        android:text="Grand Total: "
+        android:textAlignment="center"
+        android:textColor="#000"
+        android:textSize="18dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/add_button"
+        android:theme="@style/FloatingActionButton"
+        android:id="@+id/fabAddCategory"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="20dp"/>
+
+</RelativeLayout>
