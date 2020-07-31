@@ -10,12 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.accounts.Constants;
-import com.example.accounts.DatabaseHandler;
+import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
 
 import java.util.List;
-import java.util.logging.Handler;
 
 public class AdapterYears extends RecyclerView.Adapter<AdapterYears.ViewHolder>
 {

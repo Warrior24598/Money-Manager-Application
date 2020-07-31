@@ -17,10 +17,10 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.accounts.Constants;
-import com.example.accounts.DatabaseHandler;
+import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
 import com.example.accounts.addupdate.UpdateEntry;
-import com.example.accounts.data.Entry;
+import com.example.accounts.models.Entry;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;

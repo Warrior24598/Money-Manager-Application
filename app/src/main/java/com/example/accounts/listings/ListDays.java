@@ -8,9 +8,9 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.example.accounts.Constants;
-import com.example.accounts.DatabaseHandler;
+import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
-import com.example.accounts.data.Conversion;
+import com.example.accounts.models.Conversion;
 import com.example.accounts.recyclerviewadapters.AdapterDays;
 
 public class ListDays extends AppCompatActivity

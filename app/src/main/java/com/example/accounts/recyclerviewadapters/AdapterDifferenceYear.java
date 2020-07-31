@@ -11,10 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.accounts.Constants;
-import com.example.accounts.DatabaseHandler;
+import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
-import com.example.accounts.data.Conversion;
-import com.example.accounts.listings.ListDays;
 import com.example.accounts.listings.ListMonthDifference;
 import com.google.android.material.card.MaterialCardView;
 

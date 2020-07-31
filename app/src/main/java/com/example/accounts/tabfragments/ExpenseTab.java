@@ -16,10 +16,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.accounts.Constants;
-import com.example.accounts.DatabaseHandler;
+import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
 import com.example.accounts.dialogs.AddCategory;
 import com.example.accounts.listings.ListYears;
+import com.example.accounts.models.EntryType;
 import com.example.accounts.recyclerviewadapters.AdapterCategories;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -56,9 +57,9 @@ public class ExpenseTab extends Fragment
 
             handler = DatabaseHandler.getHandler(view.getContext());
 
-            List<String> categories = handler.getCategories(Constants.TYPE_EXPENSE);
+            List<String> categories = handler.getCategories(EntryType.EXPENSE);
 
-            adapter = new AdapterCategories(view.getContext(),categories,Constants.TYPE_EXPENSE);
+            adapter = new AdapterCategories(view.getContext(),categories, EntryType.EXPENSE);
 
 
             //Set adapter to recyclerview
@@ -67,7 +68,7 @@ public class ExpenseTab extends Fragment
 
 
             //open add categories dialog on click on fab
-            final AddCategory addCategoryDialog = new AddCategory(view.getContext(),Constants.TYPE_EXPENSE,adapter);
+            final AddCategory addCategoryDialog = new AddCategory(view.getContext(),EntryType.EXPENSE,adapter);
 
             fabAddCategory.setOnClickListener(new View.OnClickListener()
             {
@@ -121,7 +122,7 @@ public class ExpenseTab extends Fragment
                 {
                     Intent yearList = new Intent(getContext(), ListYears.class);
                     yearList.putExtra(Constants.CATEGORY,Constants.ALLCATS);
-                    yearList.putExtra(Constants.TYPE, Constants.TYPE_EXPENSE);
+                    yearList.putExtra(Constants.TYPE, EntryType.EXPENSE);
                     getContext().startActivity(yearList);
                 }
             });
@@ -136,7 +137,7 @@ public class ExpenseTab extends Fragment
         super.onResume();
 
         //set GrandTotal to widget
-        float total = handler.getGrandTotal(Constants.ALLCATS,Constants.TYPE_EXPENSE);
+        float total = handler.getGrandTotal(Constants.ALLCATS,EntryType.EXPENSE);
         txtGrandTotal.setText("Grand Total: "+total);
     }
 }

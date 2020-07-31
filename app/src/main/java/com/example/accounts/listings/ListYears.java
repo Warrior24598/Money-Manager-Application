@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.accounts.Constants;
-import com.example.accounts.DatabaseHandler;
+import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
 import com.example.accounts.addupdate.AddEntry;
 import com.example.accounts.recyclerviewadapters.AdapterYears;

@@ -1,4 +1,4 @@
-package com.example.accounts.data;
+package com.example.accounts.models;
 
 public class Conversion
 {

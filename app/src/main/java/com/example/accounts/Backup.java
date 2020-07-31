@@ -4,14 +4,13 @@ import android.content.Context;
 import android.os.Environment;
 import android.widget.Toast;
 
-import com.example.accounts.data.Entry;
+import com.example.accounts.models.Entry;
+import com.example.accounts.database.DatabaseHandler;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;

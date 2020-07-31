@@ -13,10 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.accounts.Constants;
-import com.example.accounts.DatabaseHandler;
+import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
 import com.example.accounts.recyclerviewadapters.AdapterDifferenceYear;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class DifferenceTab extends Fragment
 {

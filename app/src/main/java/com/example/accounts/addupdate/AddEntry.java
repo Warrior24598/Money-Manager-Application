@@ -1,10 +1,10 @@
 package com.example.accounts.addupdate;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import android.app.DatePickerDialog;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
@@ -12,10 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.accounts.Constants;
-import com.example.accounts.DatabaseHandler;
+import com.example.accounts.SystemSingleTon;
+import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
-import com.example.accounts.data.Entry;
-import com.example.accounts.dialogs.DatePickerFragment;
+import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.models.Entry;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -32,7 +33,9 @@ public class AddEntry extends AppCompatActivity
 
     String category, type, date, source, amount;
 
-    DatabaseHandler dbHandler;
+    SQLiteOpenHelper dbHandler;
+    IEntryService entryService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -50,7 +53,8 @@ public class AddEntry extends AppCompatActivity
         inputAmount = findViewById(R.id.inputAmount);
         btnAddEntry = findViewById(R.id.btnAddEntry);
 
-        dbHandler = DatabaseHandler.getHandler(this);
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(this);
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
 
         category = getIntent().getStringExtra(Constants.CATEGORY);
         type = getIntent().getStringExtra(Constants.TYPE);
@@ -119,9 +123,9 @@ public class AddEntry extends AppCompatActivity
                 }
 
 
-                Entry entry = new Entry(source,Float.parseFloat(amount),date,category,type);
+                Entry entry = new Entry();
 
-                dbHandler.addEntry(entry);
+                entryService.addEntry(entry);
 
 
                 Toast.makeText(AddEntry.this, "Data Entered Successfully", Toast.LENGTH_SHORT).show();

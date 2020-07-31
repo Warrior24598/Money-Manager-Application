@@ -12,15 +12,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.accounts.Constants;
-import com.example.accounts.DatabaseHandler;
+import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
-import com.example.accounts.data.Entry;
+import com.example.accounts.models.Entry;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class UpdateEntry extends AppCompatActivity
