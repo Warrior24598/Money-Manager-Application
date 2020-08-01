@@ -1,19 +1,38 @@
 package com.example.accounts.models;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ExpenseConfig
 {
-    private static Map<Integer,Float> config = new HashMap<>();
+    private int id;
+    private Category category;
+    private float limit;
 
-    public static void addConfig(Category category, float limit)
+    public int getId()
     {
-        config.put(category.getId(),limit);
+        return id;
     }
 
-    public static float getConfig(Category category)
+    public void setId(int id)
     {
-        return config.get(category.getId());
+        this.id = id;
+    }
+
+    public Category getCategory()
+    {
+        return category;
+    }
+
+    public void setCategory(Category category)
+    {
+        this.category = category;
+    }
+
+    public float getLimit()
+    {
+        return limit;
+    }
+
+    public void setLimit(float limit)
+    {
+        this.limit = limit;
     }
 }

@@ -2,8 +2,8 @@ package com.example.accounts.models;
 
 public enum EntryType
 {
-    INCOME(1),
-    EXPENSE(0);
+    EXPENSE(0),
+    INCOME(1);
 
     public final int id;
 

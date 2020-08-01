@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,8 +16,11 @@ import com.example.accounts.Constants;
 import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
+import com.example.accounts.databaseService.ICategoryService;
 import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.models.Category;
 import com.example.accounts.models.Entry;
+import com.example.accounts.models.EntryType;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -30,11 +34,14 @@ public class AddEntry extends AppCompatActivity
     TextView txtCategory, txtType;
     TextInputEditText inputDate, inputSource, inputAmount;
     MaterialButton btnAddEntry;
+    ImageButton backButton;
 
-    String category, type, date, source, amount;
+    Category category;
+    EntryType type;
 
     SQLiteOpenHelper dbHandler;
     IEntryService entryService;
+    ICategoryService categoryService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -52,25 +59,24 @@ public class AddEntry extends AppCompatActivity
         inputSource = findViewById(R.id.inputSource);
         inputAmount = findViewById(R.id.inputAmount);
         btnAddEntry = findViewById(R.id.btnAddEntry);
+        backButton = findViewById(R.id.backButton);
 
         dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(this);
         entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
 
-        category = getIntent().getStringExtra(Constants.CATEGORY);
-        type = getIntent().getStringExtra(Constants.TYPE);
+        category = categoryService.getCategory(getIntent().getIntExtra(Constants.CATEGORY,-1));
+        type = EntryType.find(getIntent().getIntExtra(Constants.TYPE,-1));
 
         //set Widget values
-        txtType.setText(type.toUpperCase());
-        txtCategory.setText(category);
+        txtType.setText(type.toString());
+        txtCategory.setText(category.getName());
 
         Date date=new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd");
         inputDate.setText(format.format(date));
 
-
-
         //set click listener for input date
-
 
         inputDate.setOnClickListener(new View.OnClickListener()
         {
@@ -124,6 +130,10 @@ public class AddEntry extends AppCompatActivity
 
 
                 Entry entry = new Entry();
+                entry.setCategory(category);
+                entry.setDate(date);
+                entry.setSource(source);
+                entry.setAmount(Float.parseFloat(amount));
 
                 entryService.addEntry(entry);
 
@@ -133,6 +143,15 @@ public class AddEntry extends AppCompatActivity
                 inputSource.setText("");
                 inputAmount.setText("");
 
+            }
+        });
+
+        backButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                onBackPressed();
             }
         });
     }

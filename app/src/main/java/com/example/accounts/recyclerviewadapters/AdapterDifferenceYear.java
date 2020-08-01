@@ -2,6 +2,7 @@ package com.example.accounts.recyclerviewadapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +12,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.accounts.Constants;
+import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
 import com.example.accounts.listings.ListMonthDifference;
+import com.example.accounts.models.Category;
+import com.example.accounts.models.EntryType;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
@@ -23,18 +29,20 @@ public class AdapterDifferenceYear extends RecyclerView.Adapter<AdapterDifferenc
 
     Context context;
     List<String> years;
-    String category, type;
-    DatabaseHandler dbHandler;
+
+    SQLiteOpenHelper dbHandler;
+    ICategoryService categoryService;
+    IEntryService entryService;
 
     public AdapterDifferenceYear(Context context)
     {
         this.context = context;
-        this.category = Constants.ALLCATS;
-        this.type = Constants.ALLTYPE;
 
-        dbHandler = DatabaseHandler.getHandler(context);
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(context);
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
 
-        this.years = dbHandler.getYears(category,type);
+        this.years = entryService.getYears();
     }
 
     @NonNull
@@ -50,8 +58,8 @@ public class AdapterDifferenceYear extends RecyclerView.Adapter<AdapterDifferenc
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
         String year = years.get(position);
-        float incomeTotal = dbHandler.getYearTotal(year,category,Constants.TYPE_INCOME);
-        float expenseTotal = dbHandler.getYearTotal(year,category,Constants.TYPE_EXPENSE);
+        float incomeTotal = entryService.getYearTotal(year,EntryType.INCOME);
+        float expenseTotal = entryService.getYearTotal(year,EntryType.EXPENSE);
 
         holder.txtMonth.setText(year);
         holder.txtTotal.setText(String.valueOf(incomeTotal-expenseTotal));

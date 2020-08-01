@@ -1,6 +1,7 @@
 package com.example.accounts.recyclerviewadapters;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.models.Category;
+import com.example.accounts.models.EntryType;
 
 import java.util.List;
 
@@ -20,24 +26,31 @@ public class AdapterDays extends RecyclerView.Adapter<AdapterDays.ViewHolder>
 
     Context context;
     List<String> days;
-    String monthAndYear, category, type;
-    DatabaseHandler dbHandler;
+    String monthAndYear;
+    Category category;
+    EntryType type;
 
-    public AdapterDays(Context context, String monthAndYear, String category, String type)
+    SQLiteOpenHelper dbHandler;
+    ICategoryService categoryService;
+    IEntryService entryService;
+
+    public AdapterDays(Context context, String monthAndYear, Category category, EntryType type)
     {
         this.context = context;
         this.monthAndYear = monthAndYear;
         this.category = category;
         this.type = type;
 
-        dbHandler = DatabaseHandler.getHandler(context);
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(context);
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
 
         updateList();
     }
 
     public void updateList()
     {
-        this.days = dbHandler.getDays(monthAndYear,category,type);
+        this.days = entryService.getDays(monthAndYear,category,type);
         notifyDataSetChanged();
     }
 
@@ -54,12 +67,12 @@ public class AdapterDays extends RecyclerView.Adapter<AdapterDays.ViewHolder>
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
         String day = days.get(position);
-        float total = dbHandler.getDayTotal(day+"/"+monthAndYear,category,type);
+        float total = entryService.getDateTotal(day,category,type);
 
         holder.txtDay.setText(day);
         holder.txtTotal.setText(String.valueOf(total));
 
-        AdapterEntry adapter = new AdapterEntry(context,day+"/"+monthAndYear,category,type);
+        AdapterEntry adapter = new AdapterEntry(context,day,category,type);
 
         holder.recyclerEntry.setAdapter(adapter);
         holder.recyclerEntry.setLayoutManager(new LinearLayoutManager(context));

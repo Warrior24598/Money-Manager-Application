@@ -1,6 +1,7 @@
 package com.example.accounts.tabfragments;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +15,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.accounts.Constants;
+import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
 import com.example.accounts.dialogs.AddCategory;
 import com.example.accounts.listings.ListYears;
+import com.example.accounts.models.Category;
+import com.example.accounts.models.EntryType;
 import com.example.accounts.recyclerviewadapters.AdapterCategories;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -33,7 +39,9 @@ public class IncomeTab extends Fragment
 
     AdapterCategories adapter;
 
-    DatabaseHandler handler;
+    SQLiteOpenHelper dbHandler;
+    ICategoryService categoryService;
+    IEntryService entryService;
 
     @Nullable
     @Override
@@ -53,11 +61,12 @@ public class IncomeTab extends Fragment
             txtGrandTotal = view.findViewById(R.id.txtGrandTotal);
             fabAddCategory = view.findViewById(R.id.fabAddCategory);
 
-            handler = DatabaseHandler.getHandler(view.getContext());
+            dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(getContext());
+            categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+            entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
 
-            List<String> categories = handler.getCategories(Constants.TYPE_INCOME);
 
-            adapter = new AdapterCategories(view.getContext(),categories,Constants.TYPE_INCOME);
+            adapter = new AdapterCategories(view.getContext(),EntryType.INCOME);
 
 
             //Set adapter to recyclerview
@@ -66,7 +75,7 @@ public class IncomeTab extends Fragment
 
             //open add categories dialog on click on fab
 
-            final AddCategory addCategoryDialog = new AddCategory(view.getContext(),Constants.TYPE_INCOME,adapter);
+            final AddCategory addCategoryDialog = new AddCategory(view.getContext(),EntryType.INCOME,adapter);
 
             fabAddCategory.setOnClickListener(new View.OnClickListener()
             {
@@ -83,8 +92,7 @@ public class IncomeTab extends Fragment
                 public void onClick(View v)
                 {
                     Intent yearList = new Intent(getContext(), ListYears.class);
-                    yearList.putExtra(Constants.CATEGORY,Constants.ALLCATS);
-                    yearList.putExtra(Constants.TYPE, Constants.TYPE_INCOME);
+                    yearList.putExtra(Constants.TYPE, EntryType.INCOME.id);
                     getContext().startActivity(yearList);
                 }
             });
@@ -99,7 +107,7 @@ public class IncomeTab extends Fragment
         super.onResume();
 
         //set GrandTotal to widget
-        float total = handler.getGrandTotal(Constants.ALLCATS,Constants.TYPE_INCOME);
+        float total = entryService.getGrandTotal(EntryType.INCOME);
         txtGrandTotal.setText("Grand Total: "+total);
     }
 }

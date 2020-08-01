@@ -119,10 +119,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        if(requestCode==1 && resultCode==RESULT_OK)
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK)
         {
             String fileName = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            Backup.Import(this,fileName);
+            Backup.Import(this, fileName);
         }
     }
     private boolean checkWritePermission()

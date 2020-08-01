@@ -2,6 +2,7 @@ package com.example.accounts.recyclerviewadapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +12,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.accounts.Constants;
+import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.models.Category;
 import com.example.accounts.models.Conversion;
 import com.example.accounts.listings.ListDays;
+import com.example.accounts.models.EntryType;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
@@ -24,19 +30,26 @@ class AdapterMonths extends RecyclerView.Adapter<AdapterMonths.ViewHolder>
 
     Context context;
     List<String> months;
-    String year,category, type;
-    DatabaseHandler dbHandler;
+    String year;
+    Category category;
+    EntryType type;
 
-    public AdapterMonths(Context context, String year, String category, String type)
+    SQLiteOpenHelper dbHandler;
+    ICategoryService categoryService;
+    IEntryService entryService;
+
+    public AdapterMonths(Context context, String year, Category category, EntryType type)
     {
         this.context = context;
         this.year = year;
         this.category = category;
         this.type = type;
 
-        dbHandler = DatabaseHandler.getHandler(context);
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(context);
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
 
-        this.months = dbHandler.getMonths(year,category,type);
+        this.months = entryService.getMonths(year,category,type);
     }
 
     @NonNull
@@ -52,7 +65,7 @@ class AdapterMonths extends RecyclerView.Adapter<AdapterMonths.ViewHolder>
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
         String month = months.get(position);
-        float total = dbHandler.getMonthTotal(month+"/"+year,category,type);
+        float total = entryService.getMonthTotal(month+"/"+year,category,type);
 
         holder.txtMonth.setText(Conversion.getMonthName(month));
         holder.txtTotal.setText(String.valueOf(total));
@@ -60,8 +73,9 @@ class AdapterMonths extends RecyclerView.Adapter<AdapterMonths.ViewHolder>
         //set touch handler to open new tab of days of month
         final Intent dayList = new Intent(context, ListDays.class);
         dayList.putExtra(Constants.MONTH,month+"/"+year);
-        dayList.putExtra(Constants.TYPE,type);
-        dayList.putExtra(Constants.CATEGORY,category);
+        dayList.putExtra(Constants.TYPE,type.id);
+        if(category!=null)
+            dayList.putExtra(Constants.CATEGORY,category.getId());
 
         holder.cardContainer.setOnClickListener(new View.OnClickListener()
         {

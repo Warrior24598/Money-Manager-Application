@@ -3,6 +3,7 @@ package com.example.accounts.recyclerviewadapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.accounts.Constants;
+import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
 import com.example.accounts.listings.ListYears;
+import com.example.accounts.models.Category;
+import com.example.accounts.models.EntryType;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
@@ -24,18 +30,28 @@ import java.util.List;
 public class AdapterCategories extends RecyclerView.Adapter<AdapterCategories.ViewHolder>
 {
     Context context;
-    public List<String> categories;
-    String type;
+    List<Category> categories;
+    EntryType type;
 
-    DatabaseHandler dbHandler;
+    SQLiteOpenHelper dbHandler;
+    ICategoryService categoryService;
+    IEntryService entryService;
 
-    public AdapterCategories(Context context, List<String> categories, String type)
+    public AdapterCategories(Context context, EntryType type)
     {
         this.context = context;
-        this.categories = categories;
         this.type = type;
 
-        dbHandler = DatabaseHandler.getHandler(context);
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(context);
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
+        updateList();
+    }
+
+    public void updateList()
+    {
+        categories = categoryService.getCategories(type);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -50,15 +66,15 @@ public class AdapterCategories extends RecyclerView.Adapter<AdapterCategories.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
-        final String category = categories.get(position);
+        final Category category = categories.get(position);
 
-        holder.txtCategory.setText(category);
+        holder.txtCategory.setText(category.getName());
 
         //open list of years on clicking on category container
 
         final Intent yearList = new Intent(context, ListYears.class);
-        yearList.putExtra(Constants.CATEGORY,category);
-        yearList.putExtra(Constants.TYPE,type);
+        yearList.putExtra(Constants.CATEGORY,category.getId());
+        yearList.putExtra(Constants.TYPE,type.id);
 
         holder.cardContainer.setOnClickListener(new View.OnClickListener()
         {
@@ -87,7 +103,7 @@ public class AdapterCategories extends RecyclerView.Adapter<AdapterCategories.Vi
     }
 
     //open alertbox to confirm deletion of catgory
-    void openAlert(final String category)
+    void openAlert(final Category category)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -99,7 +115,7 @@ public class AdapterCategories extends RecyclerView.Adapter<AdapterCategories.Vi
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                dbHandler.deleteCategory(category,type);
+                categoryService.deleteCategory(category);
                 Toast.makeText(context, "Category Deleted: "+category, Toast.LENGTH_SHORT).show();
 
                 categories.remove(category);

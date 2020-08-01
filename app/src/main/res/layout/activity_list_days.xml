@@ -33,7 +33,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/recyclerDays"
+        android:layout_above="@id/txtMonthTotal"
         android:layout_below="@id/txtMonthYear"
         android:layout_margin="5dp"/>
+
+    <TextView
+        android:id="@+id/txtMonthTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="2dp"
+        android:background="@android:color/holo_red_light"
+        android:text="Category"
+        android:textAlignment="center"
+        android:textColor="#fff"
+        android:textSize="@dimen/font_category_title" />
 
 </RelativeLayout>

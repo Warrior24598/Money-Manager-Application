@@ -73,76 +73,76 @@ public class Backup
     public static void Import(final Context context, final String fileName)
     {
 
-        try
-        {
-            DatabaseHandler db = DatabaseHandler.getHandler(context);
-
-            FileReader fr = new FileReader(fileName);
-
-            JSONParser parser = new JSONParser();
-            JSONObject mainObj = (JSONObject) parser.parse(fr);
-
-            //read values from the file
-            String lb = (String)mainObj.get(LASTBACKUP);
-
-            List<JSONObject> listEntries = (List<JSONObject>) mainObj.get(ENTRIES);
-
-            List<JSONObject> listCategories = (List<JSONObject>) mainObj.get(CATEGORIES);
-
-            //add all values to database
-
-            //add entries
-            for (JSONObject obj: listEntries)
-            {
-
-                //get values from object
-                String source = (String) obj.get(SOURCE);
-                String date = (String) obj.get(DATE);
-                String category = (String) obj.get(CATEGORY);
-                String type = (String) obj.get(TYPE);
-
-                double  amount = (double) obj.get(AMOUNT);
-
-                //create entry object
-                Entry e = new Entry(source,Float.parseFloat(String.valueOf(amount)),date,category,type);
-
-                //insert into database
-
-                db.addEntry(e);
-
-
-            }
-
-            //add categories
-            for(JSONObject obj:listCategories)
-            {
-                String name = (String) obj.get(NAME);
-                String type = (String) obj.get(TYPE);
-
-                //insert into database
-
-                db.addCategory(name,type);
-            }
-
-            fr.close();
-
-
-            Toast.makeText(context, "Data Imported Successfully", Toast.LENGTH_SHORT).show();
-
-
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
+//        try
+//        {
+//            DatabaseHandler db = DatabaseHandler.getHandler(context);
+//
+//            FileReader fr = new FileReader(fileName);
+//
+//            JSONParser parser = new JSONParser();
+//            JSONObject mainObj = (JSONObject) parser.parse(fr);
+//
+//            //read values from the file
+//            String lb = (String)mainObj.get(LASTBACKUP);
+//
+//            List<JSONObject> listEntries = (List<JSONObject>) mainObj.get(ENTRIES);
+//
+//            List<JSONObject> listCategories = (List<JSONObject>) mainObj.get(CATEGORIES);
+//
+//            //add all values to database
+//
+//            //add entries
+//            for (JSONObject obj: listEntries)
+//            {
+//
+//                //get values from object
+//                String source = (String) obj.get(SOURCE);
+//                String date = (String) obj.get(DATE);
+//                String category = (String) obj.get(CATEGORY);
+//                String type = (String) obj.get(TYPE);
+//
+//                double  amount = (double) obj.get(AMOUNT);
+//
+//                //create entry object
+//                Entry e = new Entry(source,Float.parseFloat(String.valueOf(amount)),date,category,type);
+//
+//                //insert into database
+//
+//                db.addEntry(e);
+//
+//
+//            }
+//
+//            //add categories
+//            for(JSONObject obj:listCategories)
+//            {
+//                String name = (String) obj.get(NAME);
+//                String type = (String) obj.get(TYPE);
+//
+//                //insert into database
+//
+//                db.addCategory(name,type);
+//            }
+//
+//            fr.close();
+//
+//
+//            Toast.makeText(context, "Data Imported Successfully", Toast.LENGTH_SHORT).show();
+//
+//
+//        }
+//        catch (FileNotFoundException e)
+//        {
+//            e.printStackTrace();
+//        }
+//        catch (IOException e)
+//        {
+//            e.printStackTrace();
+//        }
+//        catch (ParseException e)
+//        {
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -150,66 +150,70 @@ public class Backup
 
     static List<JSONObject> getEntries(DatabaseHandler db)
     {
-        List<JSONObject> entries = new ArrayList<>();
-
-        List<Entry> listE = db.getAllEntries();
-
-        for (Entry e: listE)
-        {
-            entries.add(createEnrty(e));
-        }
-
-        return entries;
+//        List<JSONObject> entries = new ArrayList<>();
+//
+//        List<Entry> listE = db.getAllEntries();
+//
+//        for (Entry e: listE)
+//        {
+//            entries.add(createEnrty(e));
+//        }
+//
+//        return entries;
+        return null;
     }
 
     static List<JSONObject> getCategories(DatabaseHandler db)
     {
-        List<JSONObject> cats = new ArrayList<>();
-
-        List<String> categories;
-
-        categories = db.getCategories(Constants.TYPE_EXPENSE);
-
-        for(String c : categories)
-        {
-            if(c.equals("Regular"))
-                continue;
-            cats.add(createCategory(c,Constants.TYPE_EXPENSE));
-        }
-
-
-        categories = db.getCategories(Constants.TYPE_INCOME);
-
-        for(String c : categories)
-        {
-            if(c.equals("Regular"))
-                continue;
-            cats.add(createCategory(c,Constants.TYPE_INCOME));
-        }
-
-        return cats;
+//        List<JSONObject> cats = new ArrayList<>();
+//
+//        List<String> categories;
+//
+//        categories = db.getCategories(Constants.TYPE_EXPENSE);
+//
+//        for(String c : categories)
+//        {
+//            if(c.equals("Regular"))
+//                continue;
+//            cats.add(createCategory(c,Constants.TYPE_EXPENSE));
+//        }
+//
+//
+//        categories = db.getCategories(Constants.TYPE_INCOME);
+//
+//        for(String c : categories)
+//        {
+//            if(c.equals("Regular"))
+//                continue;
+//            cats.add(createCategory(c,Constants.TYPE_INCOME));
+//        }
+//
+//        return cats;
+        return null;
     }
 
     static JSONObject createEnrty(Entry e)
     {
 
-        JSONObject entry = new JSONObject();
-            entry.put(ID, e.getId());
-            entry.put(SOURCE,e.getSource());
-            entry.put(AMOUNT,e.getAmount());
-            entry.put(DATE,e.getDate());
-            entry.put(CATEGORY,e.getCategory());
-            entry.put(TYPE,e.getType());
-        return entry;
+//        JSONObject entry = new JSONObject();
+//            entry.put(ID, e.getId());
+//            entry.put(SOURCE,e.getSource());
+//            entry.put(AMOUNT,e.getAmount());
+//            entry.put(DATE,e.getDate());
+//            entry.put(CATEGORY,e.getCategory());
+//            entry.put(TYPE,e.getType());
+//        return entry;
+        return null;
 
     }
 
     static JSONObject createCategory(String name, String type)
     {
-        JSONObject category = new JSONObject();
-            category.put(NAME,name);
-            category.put(TYPE,type);
-        return category;
+//        JSONObject category = new JSONObject();
+//            category.put(NAME,name);
+//            category.put(TYPE,type);
+//        return category;
 
+        return null;
     }
 }

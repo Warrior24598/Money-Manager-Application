@@ -4,16 +4,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
 
 import android.app.DatePickerDialog;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.accounts.Constants;
+import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.models.Category;
 import com.example.accounts.models.Entry;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -27,12 +33,15 @@ public class UpdateEntry extends AppCompatActivity
     TextInputEditText inputDate, inputSource, inputAmount;
     MaterialButton btnUpdateEntry;
     AppCompatSpinner spinCategory;
+    ImageButton backButton;
 
-    List<String> categories;
+    List<Category> categories;
 
     int id;
 
-    DatabaseHandler dbHandler;
+    SQLiteOpenHelper dbHandler;
+    IEntryService entryService;
+    ICategoryService categoryService;
 
     Entry e;
 
@@ -53,19 +62,19 @@ public class UpdateEntry extends AppCompatActivity
         inputAmount = findViewById(R.id.inputAmount);
         spinCategory = findViewById(R.id.spinCategory);
         btnUpdateEntry= findViewById(R.id.btnUpdateEntry);
+        backButton = findViewById(R.id.backButton);
 
-        dbHandler = DatabaseHandler.getHandler(this);
-
-
-
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(this);
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
 
         id = getIntent().getIntExtra(Constants.ID,0);
 
-        e = dbHandler.getEntry(id);
+        e = entryService.getEntry(id);
 
         //set Widget values
-        txtType.setText(e.getType().toUpperCase());
-        txtCategory.setText(e.getCategory());
+        txtType.setText(e.getCategory().getType().toString());
+        txtCategory.setText(e.getCategory().getName());
 
         inputDate.setText(e.getDate());
         inputSource.setText(e.getSource());
@@ -121,8 +130,8 @@ public class UpdateEntry extends AppCompatActivity
                 String date = inputDate.getText().toString();
                 String source = inputSource.getText().toString();
                 String amount = inputAmount.getText().toString();
-                String category = spinCategory.getSelectedItem().toString();
-                if(date.trim().equals("") || source.trim().equals("") ||amount.trim().equals("")||category.trim().equals(""))
+                Category category = (Category) spinCategory.getSelectedItem();
+                if(date.trim().equals("") || source.trim().equals("") ||amount.trim().equals("")||category!=null)
                 {
                     Toast.makeText(UpdateEntry.this, "Please Enter All Fields", Toast.LENGTH_SHORT).show();
                     return;
@@ -133,7 +142,7 @@ public class UpdateEntry extends AppCompatActivity
                 e.setAmount(Float.parseFloat(amount));
                 e.setCategory(category);
 
-                dbHandler.updateEntry(e);
+                entryService.updateEntry(e);
 
 
                 Toast.makeText(UpdateEntry.this, "Data Updated Successfully", Toast.LENGTH_SHORT).show();
@@ -142,13 +151,22 @@ public class UpdateEntry extends AppCompatActivity
 
             }
         });
+
+        backButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                onBackPressed();
+            }
+        });
     }
 
     void setSpinner()
     {
-        categories = dbHandler.getCategories(e.getType());
+        categories = categoryService.getCategories(e.getCategory().getType());
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,categories);
+        ArrayAdapter<Category> adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,categories);
 
         spinCategory.setAdapter(adapter);
 

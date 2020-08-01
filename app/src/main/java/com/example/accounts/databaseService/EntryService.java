@@ -59,8 +59,11 @@ public class EntryService implements IEntryService
     {
         SQLiteDatabase database = helper.getWritableDatabase();
 
-        String delQuery = "DELETE FROM "+TABLE_ENTRY+" WHERE "+COL_ID+"="+id;
-        database.execSQL(delQuery);
+        String deleteQuery = "DELETE FROM "+TABLE_ENTRY+" WHERE "+COL_ID+"="+id;
+
+        Log.e(TAG,deleteQuery);
+
+        database.execSQL(deleteQuery);
         database.close();
 
         Log.e(TAG,"Entry Deleted: "+id);
@@ -71,14 +74,16 @@ public class EntryService implements IEntryService
     {
         SQLiteDatabase db = helper.getWritableDatabase();
 
-        String updateQ = "UPDATE "+TABLE_ENTRY+" SET "+
+        String updateEntryQuery = "UPDATE "+TABLE_ENTRY+" SET "+
                 COL_SOURCE+"='"+e.getSource()+"', " +
                 COL_AMOUNT+"="+e.getAmount()+", " +
                 COL_DATE+"='"+e.getDate()+"', " +
                 COL_CATEGORY_ID +"='"+e.getCategory().getId()+"' " +
                 "WHERE "+COL_ID+"="+e.getId()+";";
 
-        db.execSQL(updateQ);
+        Log.e(TAG,updateEntryQuery);
+
+        db.execSQL(updateEntryQuery);
         db.close();
 
         Log.e(TAG,"Entry Updated: "+e.toString());
@@ -99,6 +104,8 @@ public class EntryService implements IEntryService
                 ",c."+COL_NAME+" as category"
                 +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE t."+COL_ID+"=c."+COL_TYPE_ID+
                 " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+" AND e."+COL_ID+"="+id;
+
+        Log.e(TAG,select);
 
         Cursor c = db.rawQuery(select,null);
 
@@ -127,13 +134,12 @@ public class EntryService implements IEntryService
                 "e."+COL_ID+" as id"+
                 ",e."+COL_SOURCE+" as source"+
                 ",e."+COL_AMOUNT+" as amount"+
-                "strftime('%d/%m/%Y',e."+COL_DATE+") as date"+
+                ",strftime('%d/%m/%Y',e."+COL_DATE+") as date"+
                 ",e."+COL_CATEGORY_ID+" as categoryId"+
-                ",e."+COL_TYPE_ID+" as typeId"+
+                ",c."+COL_TYPE_ID+" as typeId"+
                 ",c."+COL_NAME+" as category"
-                +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND strftime('%d/%m/%Y',e."+COL_DATE+")='"+date+"'"+
                 " AND c."+COL_TYPE_ID+"="+type.id;
 
@@ -143,22 +149,25 @@ public class EntryService implements IEntryService
     @Override
     public List getEntries(String date, Category category, EntryType type)
     {
+        if(category==null)
+        {
+            return getEntries(date, type);
+        }
         Log.e(TAG,"Fetching Entry for date: "+date+" | Type: "+type.toString()+" | Category: "+category.getName());
 
         String getQuery = "SELECT "+
                 "e."+COL_ID+" as id"+
                 ",e."+COL_SOURCE+" as source"+
                 ",e."+COL_AMOUNT+" as amount"+
-                "strftime('%d/%m/%Y',e."+COL_DATE+") as date"+
+                ", strftime('%d/%m/%Y',e."+COL_DATE+") as date"+
                 ",e."+COL_CATEGORY_ID+" as categoryId"+
-                ",e."+COL_TYPE_ID+" as typeId"+
+                ",c."+COL_TYPE_ID+" as typeId"+
                 ",c."+COL_NAME+" as category"
-                +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND strftime('%d/%m/%Y',e."+COL_DATE+")='"+date+"'"+
                 " AND c."+COL_TYPE_ID+"="+type.id+
-                " AND c."+COL_ID+"="+category.getId();
+                " AND e."+COL_CATEGORY_ID+"="+category.getId();
 
         return getEntriesFromQuery(getQuery);
     }
@@ -166,15 +175,16 @@ public class EntryService implements IEntryService
     @Override
     public List getYears(Category category, EntryType type)
     {
+        if(category==null)
+        {
+            return getYears(type);
+        }
         Log.e(TAG,"Fetching Years: Type: "+type.toString()+" | Category: "+category.getName());
 
-        String query = "SELECT "+
-                " DISTINCT strftime('%Y',e."+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
-                " AND c."+COL_TYPE_ID+"="+type.id+
-                " AND c."+COL_ID+"="+category.getId();
+        String query = "SELECT"+
+                " DISTINCT strftime('%Y',"+COL_DATE+")"+
+                " FROM "+TABLE_ENTRY+" WHERE "+
+                COL_CATEGORY_ID+"="+category.getId();
 
         return getDateFormatFromQuery(query);
     }
@@ -184,11 +194,10 @@ public class EntryService implements IEntryService
     {
         Log.e(TAG,"Fetching Years: Type: "+type.toString());
 
-        String query = "SELECT "+
+        String query = "SELECT"+
                 " DISTINCT strftime('%Y',e."+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_TYPE_ID+"="+type.id;
 
         return getDateFormatFromQuery(query);
@@ -201,9 +210,8 @@ public class EntryService implements IEntryService
 
         String query = "SELECT "+
                 " DISTINCT strftime('%Y',e."+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID;
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID;
 
         return getDateFormatFromQuery(query);
     }
@@ -211,16 +219,16 @@ public class EntryService implements IEntryService
     @Override
     public List getMonths(String year, Category category, EntryType type)
     {
+        if(category==null)
+        {
+            return getMonths(year,type);
+        }
         Log.e(TAG,"Fetching Months: Type: "+type.toString()+" | Year: "+year+" | Category: "+category.getName());
 
         String query = "SELECT "+
-                " DISTINCT strftime('%Y',e."+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
-                " AND c."+COL_TYPE_ID+"="+type.id+
-                " AND c."+COL_ID+"="+category.getId()+
-                " AND strftime('%Y',e."+COL_DATE+")='"+year+"'";
+                " DISTINCT strftime('%m',"+COL_DATE+")"+
+                " FROM "+TABLE_ENTRY+" WHERE "+
+                " strftime('%Y',"+COL_DATE+")='"+year+"'";
 
         return getDateFormatFromQuery(query);
     }
@@ -231,10 +239,9 @@ public class EntryService implements IEntryService
         Log.e(TAG,"Fetching Months: Type: "+type.toString()+" | Year: "+year);
 
         String query = "SELECT "+
-                " DISTINCT strftime('%Y',e."+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " DISTINCT strftime('%m',e."+COL_DATE+")"+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_TYPE_ID+"="+type.id+
                 " AND strftime('%Y',e."+COL_DATE+")='"+year+"'";
 
@@ -247,10 +254,9 @@ public class EntryService implements IEntryService
         Log.e(TAG,"Fetching All Months: Year: "+year);
 
         String query = "SELECT "+
-                " DISTINCT strftime('%Y',e."+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " DISTINCT strftime('%m',e."+COL_DATE+")"+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND strftime('%Y',e."+COL_DATE+")='"+year+"'";
 
         return getDateFormatFromQuery(query);
@@ -259,16 +265,16 @@ public class EntryService implements IEntryService
     @Override
     public List getDays(String monthAndYear, Category category, EntryType type)
     {
+        if(category==null)
+        {
+            return getDays(monthAndYear, type);
+        }
         Log.e(TAG,"Fetching Days: Type: "+type.toString()+" | Month/Year: "+monthAndYear+" | Category: "+category.getName());
 
         String query = "SELECT "+
-                " DISTINCT strftime('%Y',e."+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
-                " AND c."+COL_TYPE_ID+"="+type.id+
-                " AND c."+COL_ID+"="+category.getId()+
-                " AND strftime('%m/%Y',e."+COL_DATE+")='"+monthAndYear+"'";
+                " DISTINCT strftime('%d/%m/%Y',"+COL_DATE+")"+
+                " FROM "+TABLE_ENTRY+" WHERE "+
+                " strftime('%m/%Y',"+COL_DATE+")='"+monthAndYear+"'";
 
         return getDateFormatFromQuery(query);
     }
@@ -279,10 +285,9 @@ public class EntryService implements IEntryService
         Log.e(TAG,"Fetching Days: Type: "+type.toString()+" | Month/Year: "+monthAndYear);
 
         String query = "SELECT "+
-                " DISTINCT strftime('%Y',e."+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " DISTINCT strftime('%d/%m/%Y',e."+COL_DATE+")"+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_TYPE_ID+"="+type.id+
                 " AND strftime('%m/%Y',e."+COL_DATE+")='"+monthAndYear+"'";
 
@@ -295,10 +300,9 @@ public class EntryService implements IEntryService
         Log.e(TAG,"Fetching All Days: Type: Month/Year: "+monthAndYear);
 
         String query = "SELECT "+
-                " DISTINCT strftime('%Y',e."+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " DISTINCT strftime('%d/%m/%Y',e."+COL_DATE+")"+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND strftime('%m/%Y',e."+COL_DATE+")='"+monthAndYear+"'";
 
         return getDateFormatFromQuery(query);
@@ -307,15 +311,16 @@ public class EntryService implements IEntryService
     @Override
     public float getYearTotal(String year, Category category, EntryType type)
     {
+        if(category==null)
+        {
+            return getYearTotal(year, type);
+        }
         Log.e(TAG,"Fetching Total of Year: Type: "+type.toString()+" | Year: "+year+" | Category: "+category.getName());
 
         String query = "SELECT "+
                 " SUM(e."+COL_AMOUNT+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
-                " AND c."+COL_TYPE_ID+"="+type.id+
-                " AND c."+COL_ID+"="+category.getId()+
+                " FROM "+TABLE_ENTRY+" as e WHERE "+
+                " e."+COL_CATEGORY_ID+"="+category.getId()+
                 " AND strftime('%Y',e."+COL_DATE+")='"+year+"'";
 
         return getTotalFromQuery(query);
@@ -328,9 +333,8 @@ public class EntryService implements IEntryService
 
         String query = "SELECT "+
                 " SUM(e."+COL_AMOUNT+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_TYPE_ID+"="+type.id+
                 " AND strftime('%Y',e."+COL_DATE+")='"+year+"'";
 
@@ -340,14 +344,16 @@ public class EntryService implements IEntryService
     @Override
     public float getMonthTotal(String monthAndYear, Category category, EntryType type)
     {
+        if(category==null)
+        {
+            return getMonthTotal(monthAndYear, type);
+        }
         Log.e(TAG,"Fetching Total of Month: Type: "+type.toString()+" | Month/Year: "+monthAndYear+" | Category: "+category.getName());
 
         String query = "SELECT "+
                 " SUM(e."+COL_AMOUNT+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
-                " AND c."+COL_TYPE_ID+"="+type.id+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_ID+"="+category.getId()+
                 " AND strftime('%m/%Y',e."+COL_DATE+")='"+monthAndYear+"'";
 
@@ -361,9 +367,8 @@ public class EntryService implements IEntryService
 
         String query = "SELECT "+
                 " SUM(e."+COL_AMOUNT+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_TYPE_ID+"="+type.id+
                 " AND strftime('%m/%Y',e."+COL_DATE+")='"+monthAndYear+"'";
 
@@ -373,14 +378,16 @@ public class EntryService implements IEntryService
     @Override
     public float getDateTotal(String date, Category category, EntryType type)
     {
+        if(category==null)
+        {
+            return getDateTotal(date, type);
+        }
         Log.e(TAG,"Fetching Total of Date: Type: "+type.toString()+" | Date: "+date+" | Category: "+category.getName());
 
         String query = "SELECT "+
                 " SUM(e."+COL_AMOUNT+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
-                " AND c."+COL_TYPE_ID+"="+type.id+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_ID+"="+category.getId()+
                 " AND strftime('%d/%m/%Y',e."+COL_DATE+")='"+date+"'";
 
@@ -394,9 +401,8 @@ public class EntryService implements IEntryService
 
         String query = "SELECT "+
                 " SUM(e."+COL_AMOUNT+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_TYPE_ID+"="+type.id+
                 " AND strftime('%d/%m/%Y',e."+COL_DATE+")='"+date+"'";
 
@@ -406,13 +412,16 @@ public class EntryService implements IEntryService
     @Override
     public float getGrandTotal(Category category, EntryType type)
     {
+        if(category==null)
+        {
+            return getGrandTotal(type);
+        }
         Log.e(TAG,"Fetching Grand Total : Type: "+type.toString()+" | Category: "+category.getName());
 
         String query = "SELECT "+
                 " SUM(e."+COL_AMOUNT+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_TYPE_ID+"="+type.id+
                 " AND c."+COL_ID+"="+category.getId();
 
@@ -426,9 +435,8 @@ public class EntryService implements IEntryService
 
         String query = "SELECT "+
                 " SUM(e."+COL_AMOUNT+")"+
-                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE "+
-                "t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
                 " AND c."+COL_TYPE_ID+"="+type.id;
 
         return getTotalFromQuery(query);
@@ -436,6 +444,7 @@ public class EntryService implements IEntryService
 
     private float getTotalFromQuery(String query)
     {
+        Log.e(TAG,query);
         SQLiteDatabase database = helper.getReadableDatabase();
         Cursor c = database.rawQuery(query,null);
         c.moveToFirst();
@@ -450,6 +459,7 @@ public class EntryService implements IEntryService
 
     private List getDateFormatFromQuery(String query)
     {
+        Log.e(TAG,query);
         List<String> dateFormat = new ArrayList<>();
         SQLiteDatabase database = helper.getReadableDatabase();
 
@@ -467,6 +477,7 @@ public class EntryService implements IEntryService
             c.moveToNext();
         }
 
+        Log.e(TAG,dateFormat.toString());
         database.close();
 
         return dateFormat;

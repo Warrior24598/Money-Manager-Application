@@ -1,6 +1,7 @@
 package com.example.accounts.recyclerviewadapters;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.models.Category;
+import com.example.accounts.models.EntryType;
 
 import java.util.List;
 
@@ -19,23 +25,29 @@ public class AdapterYears extends RecyclerView.Adapter<AdapterYears.ViewHolder>
 {
     Context context;
     List<String> years;
-    String category, type;
-    DatabaseHandler dbHandler;
+    Category category;
+    EntryType type;
 
-    public AdapterYears(Context context, String category, String type)
+    SQLiteOpenHelper dbHandler;
+    ICategoryService categoryService;
+    IEntryService entryService;
+
+    public AdapterYears(Context context, Category category, EntryType type)
     {
         this.context = context;
         this.category = category;
         this.type = type;
 
-        dbHandler = DatabaseHandler.getHandler(context);
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(context);
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
 
         updateList();
     }
 
     public void updateList()
     {
-        this.years = dbHandler.getYears(category,type);
+        this.years = entryService.getYears(category,type);
         notifyDataSetChanged();
     }
     @NonNull
@@ -50,7 +62,7 @@ public class AdapterYears extends RecyclerView.Adapter<AdapterYears.ViewHolder>
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
         String year = years.get(position);
-        float total = dbHandler.getYearTotal(year,category,type);
+        float total = entryService.getYearTotal(year,category,type);
 
         holder.txtYear.setText(year);
         holder.txtTotal.setText(String.valueOf(total));

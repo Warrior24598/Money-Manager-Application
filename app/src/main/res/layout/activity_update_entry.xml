@@ -6,15 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".addupdate.UpdateEntry">
 
-    <TextView
+    <Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Type"
-        android:textColor="#000"
-        android:textAlignment="center"
-        android:textSize="25dp"
-        android:id="@+id/txtType"
-        android:layout_margin="30dp"/>
+        android:background="@android:color/holo_blue_dark"
+        android:id="@+id/toolbar">
+
+        <ImageButton
+            android:background="@drawable/back"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/backButton"></ImageButton>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type"
+            android:textColor="#fff"
+            android:textAlignment="center"
+            android:textSize="25dp"
+            android:id="@+id/txtType"/>
+    </Toolbar>
 
     <RelativeLayout
         android:layout_width="match_parent"

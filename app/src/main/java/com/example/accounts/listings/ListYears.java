@@ -5,28 +5,39 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.accounts.Constants;
+import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
 import com.example.accounts.addupdate.AddEntry;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.models.Category;
+import com.example.accounts.models.EntryType;
 import com.example.accounts.recyclerviewadapters.AdapterYears;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ListYears extends AppCompatActivity
 {
-    TextView txtCategory, txtType;
+    private static final String TAG = "ListYears";
+    TextView txtCategory, txtType, txtCategoryTotal;
     RecyclerView recyclerYears;
     FloatingActionButton fabAddEntry;
 
-    String category, type;
+    Category category;
+    EntryType type;
 
     AdapterYears adapter;
 
-    DatabaseHandler dbHandler;
+    SQLiteOpenHelper dbHandler;
+    ICategoryService categoryService;
+    IEntryService entryService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -39,14 +50,19 @@ public class ListYears extends AppCompatActivity
         //-----------------------------------------//
 
         txtCategory = findViewById(R.id.txtCategory);
+        txtCategoryTotal = findViewById(R.id.txtCategoryTotal);
         txtType= findViewById(R.id.txtType);
         recyclerYears = findViewById(R.id.recyclerYears);
         fabAddEntry = findViewById(R.id.fabAddEntry);
 
-        dbHandler = DatabaseHandler.getHandler(this);
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(this);
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
 
-        category = getIntent().getStringExtra(Constants.CATEGORY);
-        type = getIntent().getStringExtra(Constants.TYPE);
+        Log.e(TAG,"Entry: "+getIntent().getIntExtra(Constants.TYPE,-1));
+        category = categoryService.getCategory(getIntent().getIntExtra(Constants.CATEGORY,-1));
+        type = EntryType.find(getIntent().getIntExtra(Constants.TYPE,-1));
+
 
 
         //setup apater and attach to recyclerview
@@ -57,8 +73,15 @@ public class ListYears extends AppCompatActivity
         //-------SET VALUES TO WIDGETS-------//
         //-----------------------------------//
 
-        txtCategory.setText(category);
-        txtType.setText(type.toUpperCase());
+        if(null==category)
+        {
+            txtCategory.setText("ALL");
+        }
+        else
+        {
+            txtCategory.setText(category.getName());
+        }
+        txtType.setText(type.toString());
 
         recyclerYears.setAdapter(adapter);
         recyclerYears.setLayoutManager(new LinearLayoutManager(this));
@@ -72,8 +95,8 @@ public class ListYears extends AppCompatActivity
             {
                 Intent addEntry = new Intent(ListYears.this, AddEntry.class);
 
-                addEntry.putExtra(Constants.CATEGORY,category);
-                addEntry.putExtra(Constants.TYPE,type);
+                addEntry.putExtra(Constants.CATEGORY,category.getId());
+                addEntry.putExtra(Constants.TYPE,type.id);
 
                 startActivity(addEntry);
             }
@@ -86,6 +109,9 @@ public class ListYears extends AppCompatActivity
     protected void onResume()
     {
         super.onResume();
+        float categoryTotal = entryService.getGrandTotal(category,type);
+
+        txtCategoryTotal.setText("Total: "+categoryTotal);
         adapter.updateList();
     }
 }

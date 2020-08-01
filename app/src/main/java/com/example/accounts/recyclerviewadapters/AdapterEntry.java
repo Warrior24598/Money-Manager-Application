@@ -3,6 +3,7 @@ package com.example.accounts.recyclerviewadapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,10 +18,15 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.accounts.Constants;
+import com.example.accounts.SystemSingleTon;
 import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
 import com.example.accounts.addupdate.UpdateEntry;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.models.Category;
 import com.example.accounts.models.Entry;
+import com.example.accounts.models.EntryType;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
@@ -31,19 +37,26 @@ public class AdapterEntry extends RecyclerView.Adapter<AdapterEntry.ViewHolder>
     
     Context context;
     List<Entry> entryList;
-    String date,category,type;
-    DatabaseHandler dbHandler;
+    String date;
+    Category category;
+    EntryType type;
 
-    public AdapterEntry(Context context, String date, String category, String type)
+    SQLiteOpenHelper dbHandler;
+    ICategoryService categoryService;
+    IEntryService entryService;
+
+    public AdapterEntry(Context context, String date, Category category, EntryType type)
     {
         this.context = context;
         this.date = date;
         this.category = category;
         this.type = type;
 
-        dbHandler = DatabaseHandler.getHandler(context);
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(context);
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
 
-        this.entryList = dbHandler.getEntries(date,category,type);
+        this.entryList = entryService.getEntries(date,category,type);
     }
 
 
@@ -53,7 +66,7 @@ public class AdapterEntry extends RecyclerView.Adapter<AdapterEntry.ViewHolder>
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
         int layout;
-        if(category.equals(Constants.ALLCATS))
+        if(category==null)
         {
             layout = R.layout.entry_custom_with_label;
         }
@@ -73,14 +86,14 @@ public class AdapterEntry extends RecyclerView.Adapter<AdapterEntry.ViewHolder>
         final Entry e = entryList.get(position);
         Log.e(TAG,"Biniding View ID: "+e.getId());
         String source = e.getSource();
-        String category = e.getCategory();
+        Category category = e.getCategory();
         float total = e.getAmount();
 
         holder.txtEntry.setText(source);
         holder.txtTotal.setText(String.valueOf(total));
 
-        if(this.category.equals(Constants.ALLCATS))
-            holder.txtCategory.setText(category);
+        if(this.category==null)
+            holder.txtCategory.setText(category.getName());
 
         //set longclick listner to open menu
 
@@ -141,14 +154,14 @@ public class AdapterEntry extends RecyclerView.Adapter<AdapterEntry.ViewHolder>
 
         builder.setTitle("Confirm Deleting Entry:");
 
-        builder.setMessage(e.print());
+        builder.setMessage(e.toString());
 
         builder.setPositiveButton("Delete", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                dbHandler.deleteEntry(e.getId());
+                entryService.deleteEntry(e.getId());
                 Toast.makeText(context, "Entry Deleted", Toast.LENGTH_SHORT).show();
                 entryList.remove(e);
                 notifyDataSetChanged();
@@ -179,7 +192,7 @@ public class AdapterEntry extends RecyclerView.Adapter<AdapterEntry.ViewHolder>
             txtEntry = itemView.findViewById(R.id.txtEntry);
             txtTotal = itemView.findViewById(R.id.txtTotal);
 
-            if(category.equals(Constants.ALLCATS))
+            if(category==null)
                 txtCategory= itemView.findViewById(R.id.txtCategory);
         }
     }
