@@ -77,8 +77,8 @@ public class EntryService implements IEntryService
         String updateEntryQuery = "UPDATE "+TABLE_ENTRY+" SET "+
                 COL_SOURCE+"='"+e.getSource()+"', " +
                 COL_AMOUNT+"="+e.getAmount()+", " +
-                COL_DATE+"='"+e.getDate()+"', " +
-                COL_CATEGORY_ID +"='"+e.getCategory().getId()+"' " +
+                COL_DATE+"='"+e.getDate()+"'," +
+                COL_CATEGORY_ID +"="+e.getCategory().getId()+" " +
                 "WHERE "+COL_ID+"="+e.getId()+";";
 
         Log.e(TAG,updateEntryQuery);
@@ -95,15 +95,16 @@ public class EntryService implements IEntryService
         SQLiteDatabase db = helper.getReadableDatabase();
 
         String select = "SELECT "+
-                "e."+COL_ID+" as id"+
-                ",e."+COL_SOURCE+" as source"+
-                ",e."+COL_AMOUNT+" as amount"+
-                "strftime('%d/%m/%Y',e."+COL_DATE+") as date"+
-                ",e."+COL_CATEGORY_ID+" as categoryId"+
-                ",e."+COL_TYPE_ID+" as typeId"+
-                ",c."+COL_NAME+" as category"
-                +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c, "+TABLE_TYPE+" as t WHERE t."+COL_ID+"=c."+COL_TYPE_ID+
-                " AND c."+COL_ID+"=e."+COL_CATEGORY_ID+" AND e."+COL_ID+"="+id;
+                "e."+COL_ID+" as id,"+
+                "e."+COL_SOURCE+" as source,"+
+                "e."+COL_AMOUNT+" as amount,"+
+                "strftime('%d/%m/%Y',e."+COL_DATE+") as date,"+
+                "e."+COL_CATEGORY_ID+" as categoryId,"+
+                "c."+COL_TYPE_ID+" as typeId,"+
+                "c."+COL_NAME+" as category"
+                +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " AND e."+COL_ID+"="+id;
 
         Log.e(TAG,select);
 
@@ -111,6 +112,7 @@ public class EntryService implements IEntryService
 
         if(false==c.moveToFirst())
         {
+            Log.e(TAG,"No Data Found");
             db.close();
             return null;
         }
@@ -173,6 +175,36 @@ public class EntryService implements IEntryService
     }
 
     @Override
+    public List searchEntries(String searchQuery, String date,Category category, EntryType type)
+    {
+        Log.e(TAG,"Fetching Entry for search: "+searchQuery+" | Category: "+category+" | Date: "+date);
+
+        String getQuery = "SELECT "+
+                "e."+COL_ID+" as id"+
+                ",e."+COL_SOURCE+" as source"+
+                ",e."+COL_AMOUNT+" as amount"+
+                ",strftime('%d/%m/%Y',e."+COL_DATE+") as date"+
+                ",e."+COL_CATEGORY_ID+" as categoryId"+
+                ",c."+COL_TYPE_ID+" as typeId"+
+                ",c."+COL_NAME+" as category"
+                +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " AND c."+COL_TYPE_ID+"="+type.id+
+                " AND e."+COL_SOURCE+" LIKE '"+searchQuery+"%'";
+
+        if(category!=null)
+        {
+            getQuery+=" AND c."+COL_ID+"="+category.getId();
+        }
+        if(date!=null) //search in months
+        {
+            getQuery+=" AND strftime('%m/%Y',e."+COL_DATE+")='"+date+"'";
+        }
+
+        return getEntriesFromQuery(getQuery);
+    }
+
+    @Override
     public List getYears(Category category, EntryType type)
     {
         if(category==null)
@@ -226,9 +258,11 @@ public class EntryService implements IEntryService
         Log.e(TAG,"Fetching Months: Type: "+type.toString()+" | Year: "+year+" | Category: "+category.getName());
 
         String query = "SELECT "+
-                " DISTINCT strftime('%m',"+COL_DATE+")"+
-                " FROM "+TABLE_ENTRY+" WHERE "+
-                " strftime('%Y',"+COL_DATE+")='"+year+"'";
+                " DISTINCT strftime('%m',e."+COL_DATE+")"+
+                " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " AND c."+COL_ID+"="+category.getId()+
+                " AND strftime('%Y',e."+COL_DATE+")='"+year+"'";
 
         return getDateFormatFromQuery(query);
     }
@@ -274,7 +308,8 @@ public class EntryService implements IEntryService
         String query = "SELECT "+
                 " DISTINCT strftime('%d/%m/%Y',"+COL_DATE+")"+
                 " FROM "+TABLE_ENTRY+" WHERE "+
-                " strftime('%m/%Y',"+COL_DATE+")='"+monthAndYear+"'";
+                " strftime('%m/%Y',"+COL_DATE+")='"+monthAndYear+"' AND "
+                +COL_CATEGORY_ID+"="+category.getId();
 
         return getDateFormatFromQuery(query);
     }

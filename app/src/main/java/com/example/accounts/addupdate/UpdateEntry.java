@@ -29,7 +29,7 @@ import java.util.List;
 
 public class UpdateEntry extends AppCompatActivity
 {
-    TextView txtCategory, txtType;
+    TextView txtType;
     TextInputEditText inputDate, inputSource, inputAmount;
     MaterialButton btnUpdateEntry;
     AppCompatSpinner spinCategory;
@@ -55,7 +55,6 @@ public class UpdateEntry extends AppCompatActivity
         //-------INITIALISATION OF WIDGETS---------//
         //-----------------------------------------//
 
-        txtCategory = findViewById(R.id.txtCategory);
         txtType = findViewById(R.id.txtType);
         inputDate = findViewById(R.id.inputDate);
         inputSource = findViewById(R.id.inputSource);
@@ -71,10 +70,10 @@ public class UpdateEntry extends AppCompatActivity
         id = getIntent().getIntExtra(Constants.ID,0);
 
         e = entryService.getEntry(id);
+        e.setDate(formatDate(e.getDate()));
 
         //set Widget values
         txtType.setText(e.getCategory().getType().toString());
-        txtCategory.setText(e.getCategory().getName());
 
         inputDate.setText(e.getDate());
         inputSource.setText(e.getSource());
@@ -131,7 +130,7 @@ public class UpdateEntry extends AppCompatActivity
                 String source = inputSource.getText().toString();
                 String amount = inputAmount.getText().toString();
                 Category category = (Category) spinCategory.getSelectedItem();
-                if(date.trim().equals("") || source.trim().equals("") ||amount.trim().equals("")||category!=null)
+                if(date.trim().equals("") || source.trim().equals("") ||amount.trim().equals("")||category==null)
                 {
                     Toast.makeText(UpdateEntry.this, "Please Enter All Fields", Toast.LENGTH_SHORT).show();
                     return;
@@ -170,6 +169,32 @@ public class UpdateEntry extends AppCompatActivity
 
         spinCategory.setAdapter(adapter);
 
-        spinCategory.setSelection(categories.indexOf(e.getCategory()));
+        spinCategory.setSelection(getIndexOf(e.getCategory(),categories));
+    }
+
+    private int getIndexOf (Category object,List<Category> objectList)
+    {
+        for(Category o : objectList)
+        {
+            if(o.getId()==object.getId())
+            {
+                return objectList.indexOf(o);
+            }
+        }
+        return -1;
+    }
+    
+    private String formatDate(String date)
+    {
+        String formattedDate = "";
+        String[] parts = date.split("/");
+
+        formattedDate+=parts[2];
+        formattedDate+="-";
+        formattedDate+=parts[1];
+        formattedDate+="-";
+        formattedDate+=parts[0];
+
+        return formattedDate;
     }
 }

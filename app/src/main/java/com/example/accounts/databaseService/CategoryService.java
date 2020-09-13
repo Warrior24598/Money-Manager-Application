@@ -52,6 +52,13 @@ public class CategoryService implements ICategoryService
 
         Log.e(TAG,"ALL ENTRIES DELETED: CATEGORY ID: "+category.getName());
 
+        delQuery = "DELETE FROM "+TABLE_CONFIG+" WHERE "+
+                COL_EXPENSE_CATEGORY_ID +"="+category.getId()+";";
+
+        database.execSQL(delQuery);
+
+        Log.e(TAG,"ALL EXPENSE CONFIG DELETED: CATEGORY ID: "+category.getName());
+
         String delQ = "DELETE FROM "+TABLE_CATEGORY+" WHERE " +
                 COL_ID+"="+category.getId();
 

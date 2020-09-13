@@ -5,7 +5,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.accounts.Constants;
@@ -21,6 +24,7 @@ public class ListMonthDifference extends AppCompatActivity
 
     TextView txtYear, txtTotalIncome, txtTotalExpense, txtTotalSaving;
     RecyclerView recyclerDifference;
+    ImageButton backButton;
 
     AdapterDifference adapter;
 
@@ -45,6 +49,7 @@ public class ListMonthDifference extends AppCompatActivity
         txtTotalIncome = findViewById(R.id.txtTotalIncome);
         txtTotalSaving = findViewById(R.id.txtTotalSaving);
         recyclerDifference = findViewById(R.id.recyclerDifference);
+        backButton = findViewById(R.id.backButton);
 
         dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(this);
         entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
@@ -61,10 +66,22 @@ public class ListMonthDifference extends AppCompatActivity
         txtTotalIncome.setText(String.valueOf(totalIncome));
         txtTotalExpense.setText(String.valueOf(totalExpense));
         txtTotalSaving.setText(String.valueOf(totalSaving));
+        if(totalSaving>0)
+        {
+            txtTotalSaving.setBackgroundColor(Color.GREEN);
+        }
         //set adapter to recycler view
         recyclerDifference.setAdapter(adapter);
         recyclerDifference.setLayoutManager(new LinearLayoutManager(this));
 
+        backButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                onBackPressed();
+            }
+        });
 
     }
 }

@@ -52,6 +52,7 @@ public class AddCategory extends DialogFragment
 
         final TextInputEditText inputCategory = view.findViewById(R.id.inputCategory);
         MaterialButton btnAdd = view.findViewById(R.id.btnAdd);
+        inputCategory.setText("");
 
         //on clicking on button check if input is empty or not and if not then add category to database
         btnAdd.setOnClickListener(new View.OnClickListener()

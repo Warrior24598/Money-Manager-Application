@@ -6,11 +6,13 @@ public class DatabaseServiceAbstractFactory implements IDatabaseServiceAbstractF
 {
     private IEntryService entryService = null;
     private ICategoryService categoryService = null;
+    private IExpenseLimitService expenseLimitService = null;
 
     public DatabaseServiceAbstractFactory(SQLiteOpenHelper helper)
     {
         entryService = new EntryService(helper);
         categoryService = new CategoryService(helper);
+        expenseLimitService = new ExpenseLimitService(helper);
     }
 
     @Override
@@ -23,5 +25,11 @@ public class DatabaseServiceAbstractFactory implements IDatabaseServiceAbstractF
     public ICategoryService createCategoryService()
     {
         return categoryService;
+    }
+
+    @Override
+    public IExpenseLimitService createExpenseLimitService()
+    {
+        return expenseLimitService;
     }
 }

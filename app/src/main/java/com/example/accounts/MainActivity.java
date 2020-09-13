@@ -97,9 +97,11 @@ public class MainActivity extends AppCompatActivity
 
                     case R.id.option_export:
 
-                        Backup.Export(MainActivity.this);
                         return true;
-
+                    case R.id.option_expenseLimitConfig:
+                        Intent expenseConfigIntent = new Intent(MainActivity.this,ExpenseLimitConfiguration.class);
+                        startActivity(expenseConfigIntent);
+                        return true;
                     default:
                         return false;
                 }
@@ -123,7 +125,6 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == 1 && resultCode == RESULT_OK)
         {
             String fileName = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            Backup.Import(this, fileName);
         }
     }
     private boolean checkWritePermission()

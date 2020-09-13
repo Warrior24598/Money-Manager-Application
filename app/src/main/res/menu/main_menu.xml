@@ -9,5 +9,8 @@
         android:title="Export"
         android:id="@+id/option_export"
         android:icon="@drawable/vector_export"/>
+    <item
+        android:title="Expense Limit Config"
+        android:id="@+id/option_expenseLimitConfig"/>
 
 </menu>

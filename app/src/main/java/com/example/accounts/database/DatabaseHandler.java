@@ -54,8 +54,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
                 " );";
 
         String createTableConfig = "CREATE TABLE " + TABLE_CONFIG + " ( " +
-                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                COL_EXPENSE_CATEGORY_ID + " INTEGER," +
+                COL_EXPENSE_CATEGORY_ID + " INTEGER PRIMARY KEY," +
                 COL_LIMIT + " FLOAT," +
                 "FOREIGN KEY (" + COL_EXPENSE_CATEGORY_ID + ") REFERENCES "+ TABLE_CATEGORY + "( "+COL_ID+" ) "+
                 " );";

@@ -36,27 +36,20 @@ public class AdapterEntry extends RecyclerView.Adapter<AdapterEntry.ViewHolder>
     private static final String TAG = "AdapterEntry";
     
     Context context;
-    List<Entry> entryList;
-    String date;
     Category category;
-    EntryType type;
+    List<Entry> entryList;
 
     SQLiteOpenHelper dbHandler;
-    ICategoryService categoryService;
     IEntryService entryService;
 
-    public AdapterEntry(Context context, String date, Category category, EntryType type)
+    public AdapterEntry(Context context, List<Entry> entries, Category category)
     {
         this.context = context;
-        this.date = date;
         this.category = category;
-        this.type = type;
+        this.entryList = entries;
 
         dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(context);
-        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
         entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
-
-        this.entryList = entryService.getEntries(date,category,type);
     }
 
 
@@ -66,7 +59,7 @@ public class AdapterEntry extends RecyclerView.Adapter<AdapterEntry.ViewHolder>
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
         int layout;
-        if(category==null)
+        if(this.category==null)
         {
             layout = R.layout.entry_custom_with_label;
         }

@@ -3,6 +3,7 @@ package com.example.accounts.recyclerviewadapters;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,6 +67,11 @@ public class AdapterDifference extends RecyclerView.Adapter<AdapterDifference.Vi
         holder.txtIncome.setText(String.valueOf(income));
         holder.txtExpense.setText(String.valueOf(expense));
         holder.txtSaving.setText(String.valueOf(saving));
+
+        if(saving>0)
+        {
+            holder.txtSaving.setBackgroundColor(Color.GREEN);
+        }
 
         holder.txtIncome.setOnClickListener(new View.OnClickListener()
         {

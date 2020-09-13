@@ -6,19 +6,41 @@
     android:layout_height="match_parent"
     tools:context=".listings.ListMonthDifference">
 
-    <TextView
+    <Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Year"
-        android:textSize="25dp"
-        android:textAlignment="center"
-        android:id="@+id/txtYear"/>
+        android:background="@android:color/holo_blue_dark"
+        android:id="@+id/toolbar">
+
+        <ImageButton
+            android:background="@drawable/back"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/backButton"></ImageButton>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Year"
+            android:textColor="#fff"
+            android:textAlignment="center"
+            android:textSize="20dp"
+            android:id="@+id/txtYear"/>
+    </Toolbar>
+<!--    <TextView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Year"-->
+<!--        android:textSize="25dp"-->
+<!--        android:textAlignment="center"-->
+<!--        android:id="@+id/txtYear"/>-->
 
     <LinearLayout
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/txtYear"
+        android:layout_below="@id/toolbar"
         android:orientation="horizontal"
         android:weightSum="4">
 

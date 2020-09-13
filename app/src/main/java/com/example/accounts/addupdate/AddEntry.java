@@ -1,12 +1,16 @@
 package com.example.accounts.addupdate;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatSpinner;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -18,23 +22,27 @@ import com.example.accounts.database.DatabaseHandler;
 import com.example.accounts.R;
 import com.example.accounts.databaseService.ICategoryService;
 import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.databaseService.IExpenseLimitService;
 import com.example.accounts.models.Category;
 import com.example.accounts.models.Entry;
 import com.example.accounts.models.EntryType;
+import com.example.accounts.models.ExpenseConfig;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class AddEntry extends AppCompatActivity
 {
 
-    TextView txtCategory, txtType;
+    TextView txtType;
     TextInputEditText inputDate, inputSource, inputAmount;
     MaterialButton btnAddEntry;
     ImageButton backButton;
+    AppCompatSpinner spinCategory;
 
     Category category;
     EntryType type;
@@ -42,6 +50,7 @@ public class AddEntry extends AppCompatActivity
     SQLiteOpenHelper dbHandler;
     IEntryService entryService;
     ICategoryService categoryService;
+    IExpenseLimitService expenseLimitService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -53,28 +62,30 @@ public class AddEntry extends AppCompatActivity
         //-------INITIALISATION OF WIDGETS---------//
         //-----------------------------------------//
 
-        txtCategory = findViewById(R.id.txtCategory);
         txtType = findViewById(R.id.txtType);
         inputDate = findViewById(R.id.inputDate);
         inputSource = findViewById(R.id.inputSource);
         inputAmount = findViewById(R.id.inputAmount);
         btnAddEntry = findViewById(R.id.btnAddEntry);
         backButton = findViewById(R.id.backButton);
+        spinCategory = findViewById(R.id.spinCategory);
 
         dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(this);
         entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
         categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+        expenseLimitService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createExpenseLimitService();
 
         category = categoryService.getCategory(getIntent().getIntExtra(Constants.CATEGORY,-1));
         type = EntryType.find(getIntent().getIntExtra(Constants.TYPE,-1));
 
         //set Widget values
         txtType.setText(type.toString());
-        txtCategory.setText(category.getName());
 
         Date date=new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd");
         inputDate.setText(format.format(date));
+
+        setSpinner();
 
         //set click listener for input date
 
@@ -137,8 +148,9 @@ public class AddEntry extends AppCompatActivity
 
                 entryService.addEntry(entry);
 
-
                 Toast.makeText(AddEntry.this, "Data Entered Successfully", Toast.LENGTH_SHORT).show();
+
+                checkCategoryLimit(category);
 
                 inputSource.setText("");
                 inputAmount.setText("");
@@ -154,5 +166,64 @@ public class AddEntry extends AppCompatActivity
                 onBackPressed();
             }
         });
+    }
+
+    void setSpinner()
+    {
+        List<Category> categories = categoryService.getCategories(category.getType());
+
+        ArrayAdapter<Category> adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,categories);
+
+        spinCategory.setAdapter(adapter);
+
+        spinCategory.setSelection(getIndexOf(category,categories));
+    }
+
+    private int getIndexOf (Category object, List<Category> objectList)
+    {
+        for(Category o : objectList)
+        {
+            if(o.getId()==object.getId())
+            {
+                return objectList.indexOf(o);
+            }
+        }
+        return -1;
+    }
+
+    void checkCategoryLimit(Category category)
+    {
+        if(category.getType()==EntryType.INCOME)
+        {
+            return;
+        }
+        ExpenseConfig config = expenseLimitService.getExpenseLimit(category);
+
+        if(config==null)
+        {
+            return;
+        }
+
+        float categoryTotal = entryService.getGrandTotal(category,category.getType());
+        float categoryLimit = config.getLimit();
+
+        if(categoryTotal>=categoryLimit)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder.setTitle("Limit Exceeded");
+            builder.setMessage("Expense Limit Exceeded for Category: "+category.getName()+"\nLimit: "+categoryLimit+"\nExpense: "+categoryTotal);
+
+            builder.setNegativeButton("Okay", new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    dialog.dismiss();
+                }
+            });
+
+            builder.show();
+        }
     }
 }

@@ -5,4 +5,6 @@ public interface IDatabaseServiceAbstractFactory
     IEntryService createEntryService();
 
     ICategoryService createCategoryService();
+
+    IExpenseLimitService createExpenseLimitService();
 }

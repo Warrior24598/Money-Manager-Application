@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.accounts">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +12,8 @@
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".addupdate.UpdateEntry"></activity>
+        <activity android:name=".ExpenseLimitConfiguration"></activity>
+        <activity android:name=".addupdate.UpdateEntry" />
         <activity android:name=".listings.ListMonthDifference" />
         <activity android:name=".addupdate.AddEntry" />
         <activity android:name=".listings.ListDays" />

@@ -2,19 +2,9 @@ package com.example.accounts.models;
 
 public class ExpenseConfig
 {
-    private int id;
     private Category category;
     private float limit;
 
-    public int getId()
-    {
-        return id;
-    }
-
-    public void setId(int id)
-    {
-        this.id = id;
-    }
 
     public Category getCategory()
     {
@@ -34,5 +24,14 @@ public class ExpenseConfig
     public void setLimit(float limit)
     {
         this.limit = limit;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "ExpenseConfig{" +
+                "category=" + category +
+                ", limit=" + limit +
+                '}';
     }
 }

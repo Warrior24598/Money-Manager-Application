@@ -22,6 +22,8 @@ public interface IEntryService
 
     List getEntries(String date, Category category, EntryType type);
 
+    List searchEntries(String searchQuery, String date,Category category, EntryType type);
+
     List getYears(Category category, EntryType type);
 
     List getYears(EntryType type);
