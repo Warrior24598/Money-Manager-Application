@@ -18,11 +18,15 @@ public interface IEntryService
 
     Entry getEntry(int id);
 
+    List getEntries();
+
     List getEntries(String date, EntryType type);
 
     List getEntries(String date, Category category, EntryType type);
 
     List searchEntries(String searchQuery, String date,Category category, EntryType type);
+
+    List getRecentEntries(int numberOfEntries);
 
     List getYears(Category category, EntryType type);
 

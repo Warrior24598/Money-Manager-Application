@@ -128,6 +128,25 @@ public class EntryService implements IEntryService
     }
 
     @Override
+    public List getEntries()
+    {
+        Log.e(TAG,"Fetching ALL Entries");
+
+        String getQuery = "SELECT "+
+                "e."+COL_ID+" as id,"+
+                "e."+COL_SOURCE+" as source,"+
+                "e."+COL_AMOUNT+" as amount,"+
+                "strftime('%d/%m/%Y',e."+COL_DATE+") as date,"+
+                "e."+COL_CATEGORY_ID+" as categoryId,"+
+                "c."+COL_TYPE_ID+" as typeId,"+
+                "c."+COL_NAME+" as category"
+                +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID;
+
+        return getEntriesFromQuery(getQuery);
+    }
+
+    @Override
     public List getEntries(String date, EntryType type)
     {
         Log.e(TAG,"Fetching Entry for date: "+date+" | Type: "+type.toString());
@@ -200,6 +219,26 @@ public class EntryService implements IEntryService
         {
             getQuery+=" AND strftime('%m/%Y',e."+COL_DATE+")='"+date+"'";
         }
+
+        return getEntriesFromQuery(getQuery);
+    }
+
+    @Override
+    public List getRecentEntries(int numberOfEntries)
+    {
+        Log.e(TAG,"Fetching "+numberOfEntries+" Recent Entries");
+
+        String getQuery = "SELECT "+
+                "e."+COL_ID+" as id,"+
+                "e."+COL_SOURCE+" as source,"+
+                "e."+COL_AMOUNT+" as amount,"+
+                "strftime('%d/%m/%Y',e."+COL_DATE+") as date,"+
+                "e."+COL_CATEGORY_ID+" as categoryId,"+
+                "c."+COL_TYPE_ID+" as typeId,"+
+                "c."+COL_NAME+" as category"
+                +" FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c  WHERE "+
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+
+                " order by id desc";
 
         return getEntriesFromQuery(getQuery);
     }

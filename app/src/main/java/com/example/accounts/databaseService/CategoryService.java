@@ -101,6 +101,38 @@ public class CategoryService implements ICategoryService
     }
 
     @Override
+    public List getCategories()
+    {
+    Log.e(TAG,"All Categories ");
+    List<Category> categories = new ArrayList<>();
+
+    SQLiteDatabase database = helper.getReadableDatabase();
+
+    String getCategoriesQuery = "SELECT * FROM "+TABLE_CATEGORY;
+
+    Log.e(TAG,getCategoriesQuery);
+
+    Cursor c = database.rawQuery(getCategoriesQuery,null);
+    c.moveToFirst();
+
+    while(!c.isAfterLast())
+    {
+        Category category = new Category();
+        category.setType(EntryType.find(c.getInt(c.getColumnIndex(COL_TYPE_ID))));
+        category.setName(c.getString(c.getColumnIndex(COL_NAME)));
+        category.setId(c.getInt(c.getColumnIndex(COL_ID)));
+        categories.add(category);
+        c.moveToNext();
+    }
+
+    Log.e(TAG,"Total Categories: "+categories.size());
+    database.close();
+
+    return categories;
+}
+
+
+    @Override
     public Category getCategory(int id)
     {
         Log.e(TAG,"Finding Category for id: "+id);

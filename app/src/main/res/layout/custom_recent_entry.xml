@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="4dp"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtSource"
+        android:text="Source"
+        android:textSize="16dp"
+        android:textColor="#000"
+        android:layout_marginTop="1dp"
+        android:layout_marginLeft="2dp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtCategory"
+        android:text="Category"
+        android:layout_below="@id/txtSource"
+        android:textSize="13dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginLeft="2dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtAmount"
+        android:text="Amount"
+        android:layout_below="@id/txtCategory"
+        android:textSize="13dp"
+        android:textStyle="bold"
+        android:layout_marginTop="1dp"
+        android:layout_marginLeft="2dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtDate"
+        android:text="Date"
+        android:layout_alignParentEnd="true"
+        android:textSize="16dp"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="2dp"
+        android:layout_below="@id/txtAmount"
+        android:background="@android:color/darker_gray"/>
+
+</RelativeLayout>

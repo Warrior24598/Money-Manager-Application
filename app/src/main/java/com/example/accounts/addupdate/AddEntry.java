@@ -141,10 +141,10 @@ public class AddEntry extends AppCompatActivity
 
 
                 Entry entry = new Entry();
-                entry.setCategory(category);
-                entry.setDate(date);
+                entry.setCategory((Category) spinCategory.getSelectedItem());
                 entry.setSource(source);
                 entry.setAmount(Float.parseFloat(amount));
+                entry.setDate(date);
 
                 entryService.addEntry(entry);
 

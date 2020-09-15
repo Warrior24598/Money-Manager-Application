@@ -3,6 +3,7 @@ package com.example.accounts;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,9 +18,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ActionMenuView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.accounts.backup.BackupReader;
+import com.example.accounts.backup.BackupWriter;
+import com.example.accounts.backup.IBackupReader;
+import com.example.accounts.backup.IBackupWriter;
+import com.example.accounts.databaseService.ICategoryService;
+import com.example.accounts.databaseService.IEntryService;
+import com.example.accounts.databaseService.IExpenseLimitService;
 import com.example.accounts.tabfragments.DifferenceTab;
 import com.example.accounts.tabfragments.ExpenseTab;
 import com.example.accounts.tabfragments.IncomeTab;
+import com.example.accounts.tabfragments.RecentEntriesTab;
 import com.google.android.material.tabs.TabLayout;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
@@ -36,6 +45,11 @@ public class MainActivity extends AppCompatActivity
     ViewPager view_pager;
     SectionPageAdapter sectionPageAdapter;
     TabLayout tabLayout;
+
+    SQLiteOpenHelper dbHandler;
+    ICategoryService categoryService;
+    IEntryService entryService;
+    IExpenseLimitService limitService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -54,9 +68,15 @@ public class MainActivity extends AppCompatActivity
         Log.e(TAG,"DONE INTIALIZATION");
 
         //-----------SETTING UP VIEW PAGER--------//
-        sectionPageAdapter.addPage(new ExpenseTab(),"EXPENSE");
-        sectionPageAdapter.addPage(new IncomeTab(),"INCOME");
-        sectionPageAdapter.addPage(new DifferenceTab(),"DIFFERENCE");
+        sectionPageAdapter.addPage(new ExpenseTab(),"Expense");
+        sectionPageAdapter.addPage(new IncomeTab(),"Income");
+        sectionPageAdapter.addPage(new DifferenceTab(),"Difference");
+        sectionPageAdapter.addPage(new RecentEntriesTab(),"Recent");
+
+        dbHandler = SystemSingleTon.instance().getDatabaseAbstractFactory().createDatabaseHandler(this);
+        categoryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createCategoryService();
+        entryService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createEntryService();
+        limitService = SystemSingleTon.instance().getDatabaseServiceAbstractFactory(dbHandler).createExpenseLimitService();
 
         view_pager.setAdapter(sectionPageAdapter);
 
@@ -90,13 +110,16 @@ public class MainActivity extends AppCompatActivity
                         new MaterialFilePicker()
                                 .withActivity(MainActivity.this)
                                 .withRequestCode(1)
-                                .withFilter(Pattern.compile(".*\\.exp$")) // Filtering files and directories by file name using regexp
+                                .withFilter(Pattern.compile(".*\\.bak$")) // Filtering files and directories by file name using regexp
                                 .withHiddenFiles(false) // Show hidden files and folders
                                 .start();
                         return true;
 
                     case R.id.option_export:
-
+                        checkWritePermission();
+                        Log.e(TAG,"Exporting data to accounts.bac");
+                        IBackupWriter backupWriter = new BackupWriter(MainActivity.this);
+                        backupWriter.write(categoryService,entryService,limitService);
                         return true;
                     case R.id.option_expenseLimitConfig:
                         Intent expenseConfigIntent = new Intent(MainActivity.this,ExpenseLimitConfiguration.class);
@@ -125,6 +148,9 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == 1 && resultCode == RESULT_OK)
         {
             String fileName = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            IBackupReader backupReader = new BackupReader();
+            backupReader.read(MainActivity.this,fileName,categoryService,entryService,limitService);
+            onResume();
         }
     }
     private boolean checkWritePermission()

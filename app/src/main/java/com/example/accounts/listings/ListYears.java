@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ public class ListYears extends AppCompatActivity
     ICategoryService categoryService;
     IEntryService entryService;
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -84,6 +86,7 @@ public class ListYears extends AppCompatActivity
         if(null==category)
         {
             title+="ALL";
+            fabAddEntry.setVisibility(View.GONE);
         }
         else
         {

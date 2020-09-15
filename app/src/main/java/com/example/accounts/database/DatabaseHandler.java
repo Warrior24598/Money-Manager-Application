@@ -72,6 +72,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
     {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ENTRY);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TYPE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONFIG);
         onCreate(db);
 
         Log.e(TAG, "Database Updated");

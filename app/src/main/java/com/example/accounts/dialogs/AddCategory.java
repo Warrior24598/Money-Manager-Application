@@ -70,7 +70,8 @@ public class AddCategory extends DialogFragment
                 {
                     categoryService.addCategory(category);
                     adapter.updateList();
-
+                    
+                    inputCategory.setText("");
                     getDialog().dismiss();
                 }
             }
