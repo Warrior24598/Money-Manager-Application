@@ -25,6 +25,7 @@ import com.example.accounts.backup.IBackupWriter;
 import com.example.accounts.databaseService.ICategoryService;
 import com.example.accounts.databaseService.IEntryService;
 import com.example.accounts.databaseService.IExpenseLimitService;
+import com.example.accounts.graphreports.ReportsHome;
 import com.example.accounts.tabfragments.DifferenceTab;
 import com.example.accounts.tabfragments.ExpenseTab;
 import com.example.accounts.tabfragments.IncomeTab;
@@ -125,6 +126,9 @@ public class MainActivity extends AppCompatActivity
                         Intent expenseConfigIntent = new Intent(MainActivity.this,ExpenseLimitConfiguration.class);
                         startActivity(expenseConfigIntent);
                         return true;
+                    case R.id.option_reports:
+                        Intent reportsActivity = new Intent(MainActivity.this,ReportsHome.class);
+                        startActivity(reportsActivity);
                     default:
                         return false;
                 }

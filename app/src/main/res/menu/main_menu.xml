@@ -12,5 +12,8 @@
     <item
         android:title="Expense Limit Config"
         android:id="@+id/option_expenseLimitConfig"/>
+    <item
+        android:title="Graphical Reports"
+        android:id="@+id/option_reports"/>
 
 </menu>

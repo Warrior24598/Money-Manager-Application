@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="INCOME"
+                android:layout_marginTop="10dp"
+                android:textSize="16dp"
+                android:textColor="#09Af00"/>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/incomeCategoryLineChart"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_margin="10dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/black"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="EXPENSE"
+                android:layout_marginTop="10dp"
+                android:textSize="16dp"
+                android:textColor="#ff0266"/>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/expenseCategoryLineChart"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_margin="10dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

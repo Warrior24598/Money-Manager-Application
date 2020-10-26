@@ -144,7 +144,41 @@ public class CategoryService implements ICategoryService
 
         Log.e(TAG,getCategoriesQuery);
 
-        Cursor c = database.rawQuery(getCategoriesQuery,null);
+        return getCategoryFromQuery(getCategoriesQuery);
+    }
+
+    @Override
+    public Category getCategory(String categoryName, EntryType type)
+    {
+        Log.e(TAG,"Finding Category for name: "+categoryName+", Type"+type.toString());
+
+        String getCategoriesQuery = "SELECT * FROM "+TABLE_CATEGORY+" WHERE " +
+                COL_NAME +"='"+categoryName+"' and "+COL_TYPE_ID+"="+type.id;
+
+        Log.e(TAG,getCategoriesQuery);
+
+        return getCategoryFromQuery(getCategoriesQuery);
+    }
+
+    @Override
+    public void updateCategoryName(Category category)
+    {
+
+        SQLiteDatabase database = helper.getReadableDatabase();
+
+        String updateCategoryQuery = "UPDATE "+TABLE_CATEGORY+" SET " +
+                COL_NAME +"='"+category.getName()+"' "+
+                "WHERE "+COL_ID+"="+category.getId();
+
+        database.execSQL(updateCategoryQuery);
+        database.close();
+    }
+
+    private Category getCategoryFromQuery(String query)
+    {
+        SQLiteDatabase database = helper.getReadableDatabase();
+
+        Cursor c = database.rawQuery(query,null);
         if(false==c.moveToFirst())
         {
             Log.e(TAG, "Category Not Found");
@@ -161,19 +195,5 @@ public class CategoryService implements ICategoryService
         database.close();
 
         return category;
-    }
-
-    @Override
-    public void updateCategoryName(Category category)
-    {
-
-        SQLiteDatabase database = helper.getReadableDatabase();
-
-        String updateCategoryQuery = "UPDATE "+TABLE_CATEGORY+" SET " +
-                COL_NAME +"='"+category.getName()+"' "+
-                "WHERE "+COL_ID+"="+category.getId();
-
-        database.execSQL(updateCategoryQuery);
-        database.close();
     }
 }

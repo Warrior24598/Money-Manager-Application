@@ -18,5 +18,7 @@ public interface ICategoryService
 
     Category getCategory(int id);
 
+    Category getCategory(String categoryName, EntryType type);
+
     void updateCategoryName(Category category);
 }

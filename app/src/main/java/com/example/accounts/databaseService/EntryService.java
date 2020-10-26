@@ -253,9 +253,9 @@ public class EntryService implements IEntryService
         Log.e(TAG,"Fetching Years: Type: "+type.toString()+" | Category: "+category.getName());
 
         String query = "SELECT"+
-                " DISTINCT strftime('%Y',"+COL_DATE+")"+
+                " DISTINCT strftime('%Y',"+COL_DATE+") as date"+
                 " FROM "+TABLE_ENTRY+" WHERE "+
-                COL_CATEGORY_ID+"="+category.getId();
+                COL_CATEGORY_ID+"="+category.getId()+" order by date";
 
         return getDateFormatFromQuery(query);
     }
@@ -266,10 +266,10 @@ public class EntryService implements IEntryService
         Log.e(TAG,"Fetching Years: Type: "+type.toString());
 
         String query = "SELECT"+
-                " DISTINCT strftime('%Y',e."+COL_DATE+")"+
+                " DISTINCT strftime('%Y',e."+COL_DATE+") as date"+
                 " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
                 " c."+COL_ID+"=e."+COL_CATEGORY_ID+
-                " AND c."+COL_TYPE_ID+"="+type.id;
+                " AND c."+COL_TYPE_ID+"="+type.id+" order by date";
 
         return getDateFormatFromQuery(query);
     }
@@ -280,9 +280,9 @@ public class EntryService implements IEntryService
         Log.e(TAG,"Fetching all Years");
 
         String query = "SELECT "+
-                " DISTINCT strftime('%Y',e."+COL_DATE+")"+
+                " DISTINCT strftime('%Y',e."+COL_DATE+") as date"+
                 " FROM "+TABLE_ENTRY+" as e, "+TABLE_CATEGORY+" as c WHERE "+
-                " c."+COL_ID+"=e."+COL_CATEGORY_ID;
+                " c."+COL_ID+"=e."+COL_CATEGORY_ID+" order by date";
 
         return getDateFormatFromQuery(query);
     }
